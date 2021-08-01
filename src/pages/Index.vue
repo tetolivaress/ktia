@@ -30,32 +30,31 @@
 
     <q-dialog v-model="form">
       <q-card class="my-card bg-white">
-      <q-card-section>
-        <div class="text-h6">Contacto</div>
-      </q-card-section>
+        <q-card-section>
+          <div class="text-h6">Contacto</div>
+        </q-card-section>
 
-      <q-card-actions>
-      <q-list>
-        <q-item clickable>
-          <q-item-section>
-            <q-input filled v-model="name" label="Nombre" />
-          </q-item-section>
-        </q-item>
+        <q-card-actions>
+        <q-list>
+          <q-item clickable>
+            <q-item-section>
+              <q-input filled v-model="name" label="Nombre" />
+            </q-item-section>
+          </q-item>
 
-        <q-item clickable>
-          <q-item-section>
-            <q-input filled v-model="address" label="Dirección" />
-          </q-item-section>
-        </q-item>
+          <q-item clickable>
+            <q-item-section>
+              <q-input filled v-model="address" label="Dirección" />
+            </q-item-section>
+          </q-item>
 
-        <q-item clickable>
-          <q-btn color="warning" label="Contactar" @click="buy"/>
-        </q-item>
-      </q-list>
-      </q-card-actions>
-    </q-card>
+          <q-item clickable>
+            <q-btn color="warning" label="Contactar" @click="buy"/>
+          </q-item>
+        </q-list>
+        </q-card-actions>
+      </q-card>
     </q-dialog>
-
   </div>
 </template>
 
