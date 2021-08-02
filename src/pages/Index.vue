@@ -79,7 +79,7 @@ export default {
           image: '/assets/pepperoni.jpg'
         },
         {
-          name: 'Amarican Rush',
+          name: 'American Rush',
           amount: 0,
           image: '/assets/americanrush.jpg'
         },
