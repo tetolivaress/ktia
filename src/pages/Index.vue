@@ -93,7 +93,7 @@ export default {
   },
   computed: {
     whatsappMessage () {
-      let message = `me llamo ${this.name}, me interesan: `
+      let message = `Me llamo ${this.name}, quiero: `
 
       this.pizzas.forEach(({ name, amount }) => {
         amount ? message += `${amount} ${name} - ` : ''
