@@ -3,7 +3,7 @@
     <q-list padding>
       <q-item-label header class="flex justify-between">
         <span>Menu</span>
-        <q-btn color="primary" label="agregar" />
+        <q-btn color="primary" label="agregar" @click="onReset(), form = true"/>
       </q-item-label>
       <template v-for="pizza in pizzas" :key="pizza.name">
         <q-item>
@@ -13,7 +13,7 @@
             @click="edit = true"
           >
             <q-avatar rounded>
-              <img src="pizza.image" />
+              <img :src="pizza.image" />
             </q-avatar>
           </q-item-section>
 
@@ -29,7 +29,7 @@
                 color="info"
                 round
                 icon="edit"
-                @click="edit = true"
+                @click="form = true, selectedPizza = pizza, edit = true"
               />
               <b class="q-px-sm">{{ pizza.amount }} </b>
               <q-btn
@@ -47,46 +47,49 @@
       </template>
     </q-list>
 
-    <q-dialog v-model="edit">
+    <q-dialog v-model="form" @hide="edit = false">
       <q-card class="my-card bg-white">
-        <q-card-section>
-          <div class="text-h6">Editar</div>
-        </q-card-section>
+        <q-form @submit="onSubmit" @reset="onReset">
+          <q-card-section>
+            <div class="text-h6">Editar</div>
+          </q-card-section>
 
-        <q-card-actions>
-          <q-list>
-            <q-item clickable>
-              <q-item-section>
-                <q-input filled v-model="selectedPizza.name" label="Nombre" />
-              </q-item-section>
-            </q-item>
-            <q-item clickable>
-              <q-item-section>
-                <q-input filled v-model="selectedPizza.address" label="precio" />
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-btn-toggle
-                v-model="selectedPizza.active"
-                push
-                glossy
-                toggle-color="primary"
-                :options="[
-                  {label: 'Desactivado', value: false},
-                  {label: 'Activo', value: true}
-                ]"
-              />
-            </q-item>
+          <q-card-actions>
+            <q-list>
+              <q-item clickable>
+                <q-item-section>
+                  <q-input filled v-model="selectedPizza.name" label="Nombre" />
+                </q-item-section>
+              </q-item>
+              <q-item clickable>
+                <q-item-section>
+                  <q-input filled v-model="selectedPizza.price" label="precio" />
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-btn-toggle
+                  v-model="selectedPizza.active"
+                  push
+                  glossy
+                  toggle-color="primary"
+                  :options="[
+                    {label: 'Desactivado', value: false},
+                    {label: 'Activo', value: true}
+                  ]"
+                />
+              </q-item>
 
-            <q-file filled v-model="selectedPizza.image" label="Imagen" />
+              <q-file filled v-model="selectedPizza.image" label="Imagen" />
 
-            <q-editor v-model="selectedPizza.detail" min-height="5rem" />
+              <q-editor v-model="selectedPizza.detail" min-height="5rem" />
 
-            <q-item clickable>
-              <q-btn color="warning" label="Contactar" />
-            </q-item>
-          </q-list>
-        </q-card-actions>
+              <q-item clickable>
+                <q-btn color="warning" label="editar" v-if="edit"/>
+                <q-btn label="Crear" type="submit" color="primary" v-else/>
+              </q-item>
+            </q-list>
+          </q-card-actions>
+        </q-form>
       </q-card>
     </q-dialog>
 
@@ -111,26 +114,38 @@ import { db } from '../db'
 export default {
   data() {
     return {
+      edit: false,
       pizzas: [],
       confirm: false,
       active: true,
-      edit: false,
+      form: false,
       selectedPizza: {
         name: "",
-        amount: 0,
         image: "",
         detail: "",
-        price: 0
+        price: 0,
+        active: true
       }
     }
   },
   methods: {
     getPizzas() {
       db.collection("pizzas").get().then((pizzas) => {
+        this.pizzas = []
         pizzas.forEach((doc) => {
           this.pizzas.push(doc.data())
         });
       });
+    },
+    onReset () {
+      this.selectedPizza.name = ''
+      this.selectedPizza.detail = ''
+      this.selectedPizza.price = 0
+      this.selectedPizza.active = true
+      this.selectedPizza.image = ''
+    },
+    onSubmit () {
+      db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
     }
   },
   mounted() {
