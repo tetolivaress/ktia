@@ -160,20 +160,14 @@ export default {
       this.selectedPizza.active = true
       this.selectedPizza.image = ''
     },
-    onSubmit () {
+    async onSubmit () {
       //db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
       const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
-      refStorage.putString(this.selectedPizza.image, 'data_url')
-        .then(snapshot => {
-          console.log(snapshot)
-          snapshot.ref.getDownloadURL()
-            .then(image => {
-              delete this.selectedPizza.image
-              db.collection('pizzas')
-                .add({ ...this.selectedPizza, image })
-                .then(()=>this.getPizzas())
-            })
-        })
+      const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
+      const image = await snapshot.ref.getDownloadURL()
+      delete this.selectedPizza.image
+      await db.collection('pizzas').add({ ...this.selectedPizza, image })
+      this.getPizzas()
     }
   },
   mounted() {
