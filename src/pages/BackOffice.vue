@@ -79,7 +79,7 @@
                 />
               </q-item>
 
-              <q-file filled v-model="selectedPizza.image" label="Imagen" />
+              <q-file filled v-model="image" label="Imagen" />
 
               <q-editor v-model="selectedPizza.detail" min-height="5rem" />
 
@@ -110,6 +110,10 @@
 </template>
 <script>
 import { db } from '../db'
+import readFileAsync from '../utils/FileReader'
+import resizeImage from '../utils/ImageReader'
+import firebase from 'firebase/app'
+import 'firebase/storage'
 
 export default {
   data() {
@@ -119,12 +123,24 @@ export default {
       confirm: false,
       active: true,
       form: false,
+      image: undefined,
       selectedPizza: {
         name: "",
         image: "",
         detail: "",
         price: 0,
         active: true
+      }
+    }
+  },
+  watch: {
+    async image(file) {
+      try{
+        const fileB64 = await readFileAsync(file)
+        const image = await resizeImage(fileB64)
+        this.selectedPizza.image = image
+      }catch (error) {
+        alert('Los archivos solo pueden ser tipo JPEG, JPG ó PNG')
       }
     }
   },
@@ -145,7 +161,19 @@ export default {
       this.selectedPizza.image = ''
     },
     onSubmit () {
-      db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
+      //db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
+      const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
+      refStorage.putString(this.selectedPizza.image, 'data_url')
+        .then(snapshot => {
+          console.log(snapshot)
+          snapshot.ref.getDownloadURL()
+            .then(image => {
+              delete this.selectedPizza.image
+              db.collection('pizzas')
+                .add({ ...this.selectedPizza, image })
+                .then(()=>this.getPizzas())
+            })
+        })
     }
   },
   mounted() {
