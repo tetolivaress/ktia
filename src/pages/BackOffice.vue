@@ -12,7 +12,7 @@
             class="q-ml-none"
             @click="edit = true"
           >
-            <q-avatar rounded>
+            <q-avatar rounded @click="detail = true, selectedPizza = pizza">
               <img :src="pizza.image" />
             </q-avatar>
           </q-item-section>
@@ -29,7 +29,7 @@
                 color="info"
                 round
                 icon="edit"
-                @click="form = true, selectedPizza = pizza, edit = true"
+                @click="form = true, selectedPizza = pizza, edit = true, selectedPizza.id = pizza.id"
               />
               <b class="q-px-sm">{{ pizza.amount }} </b>
               <q-btn
@@ -84,8 +84,9 @@
               <q-editor v-model="selectedPizza.detail" min-height="5rem" />
 
               <q-item clickable>
-                <q-btn color="warning" label="editar" v-if="edit"/>
+                <q-btn color="warning" label="editar" v-if="edit" @click="updatePizzas(selectedPizza.id)"/>
                 <q-btn label="Crear" type="submit" color="primary" v-else/>
+                <q-spinner-hourglass color="primary" size="2em" v-if="loading"/>
               </q-item>
             </q-list>
           </q-card-actions>
@@ -106,6 +107,25 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="detail" transition-show="flip-left" transition-hide="flip-right">
+      <q-card class="my-card" style="width: 720px;">
+        <q-img :src="selectedPizza.image">
+          <div class="absolute-bottom text-h6">{{ selectedPizza.name }}</div>
+        </q-img>
+        <q-card-section v-html="selectedPizza.detail" />
+          <q-card-actions align="right">
+          <q-btn
+            flat
+            round
+            color="red"
+            icon="share"
+            @click="sendImageToWhatsapp"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </div>
 </template>
 <script>
@@ -118,13 +138,16 @@ import 'firebase/storage'
 export default {
   data() {
     return {
+      detail: false,
       edit: false,
       pizzas: [],
       confirm: false,
       active: true,
       form: false,
       image: undefined,
+      loading: false,
       selectedPizza: {
+        id: '',
         name: "",
         image: "",
         detail: "",
@@ -142,15 +165,18 @@ export default {
       }catch (error) {
         alert('Los archivos solo pueden ser tipo JPEG, JPG ó PNG')
       }
+    },
+    selectedPizza (pizza) {
+      console.log(pizza)
     }
   },
   methods: {
-    getPizzas() {
-      db.collection("pizzas").get().then((pizzas) => {
-        this.pizzas = []
-        pizzas.forEach((doc) => {
-          this.pizzas.push(doc.data())
-        });
+    async getPizzas() {
+      const pizzas = await db.collection("pizzas").get()
+      this.pizzas = []
+      pizzas.forEach((doc) => {
+        const pizza = { id: doc.id, ...doc.data() }
+        this.pizzas.push(pizza)
       });
     },
     onReset () {
@@ -168,6 +194,18 @@ export default {
       delete this.selectedPizza.image
       await db.collection('pizzas').add({ ...this.selectedPizza, image })
       this.getPizzas()
+    },
+    async updatePizzas (pizza) {
+      console.log(pizza)
+      this.loading = true
+      const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
+      const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
+      const image = await snapshot.ref.getDownloadURL()
+      delete this.selectedPizza.image
+      await db.collection('pizzas').doc(pizza).update({ ...this.selectedPizza, image })
+      await this.getPizzas()
+      this.form = false
+      this.loading = false
     }
   },
   mounted() {

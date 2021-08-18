@@ -3,7 +3,6 @@ const readFileAsync = file => {
     let reader = new FileReader();
 
     reader.onload = () => {
-      console.log(reader);
       resolve(reader.result);
     };
 

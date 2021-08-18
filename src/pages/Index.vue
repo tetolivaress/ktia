@@ -78,7 +78,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="detail" transition-show="flip-down" transition-hide="flip-up">
+    <q-dialog v-model="detail" transition-show="flip-left" transition-hide="flip-right">
       <q-card class="my-card" style="width: 720px;">
         <q-img :src="selectedPizza.image">
           <div class="absolute-bottom text-h6">{{ selectedPizza.name }}</div>
