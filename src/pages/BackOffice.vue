@@ -172,12 +172,14 @@ export default {
   },
   methods: {
     async getPizzas() {
+      this.$q.loading.show()
       const pizzas = await db.collection("pizzas").get()
       this.pizzas = []
       pizzas.forEach((doc) => {
         const pizza = { id: doc.id, ...doc.data() }
         this.pizzas.push(pizza)
       });
+      this.$q.loading.hide()
     },
     onReset () {
       this.selectedPizza.name = ''
@@ -187,6 +189,7 @@ export default {
       this.selectedPizza.image = ''
     },
     async onSubmit () {
+      this.$q.loading.show()
       //db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
       const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
       const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
@@ -194,18 +197,23 @@ export default {
       delete this.selectedPizza.image
       await db.collection('pizzas').add({ ...this.selectedPizza, image })
       this.getPizzas()
+      this.$q.loading.hide()
     },
-    async updatePizzas (pizza) {
-      console.log(pizza)
-      this.loading = true
+    async updatePizzas (pizzaId) {
+      this.$q.loading.show()
+      const image = this.edit && this.image && await this.storeImage()
+      const pizza = image ? { ...this.selectedPizza, image } : this.selectedPizza
+      await db.collection('pizzas')
+        .doc(pizzaId).update(pizza, { merge: true })
+      await this.getPizzas()
+      this.form = false
+      this.$q.loading.hide()
+    },
+    async storeImage() {
       const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
       const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
       const image = await snapshot.ref.getDownloadURL()
-      delete this.selectedPizza.image
-      await db.collection('pizzas').doc(pizza).update({ ...this.selectedPizza, image })
-      await this.getPizzas()
-      this.form = false
-      this.loading = false
+      return image
     }
   },
   mounted() {
