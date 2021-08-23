@@ -1,10 +1,13 @@
 <template>
   <div class="q-pa-md">
+    <q-item-label header class="flex justify-between">
+      <span @click="xxx"></span>
+      <q-btn color="primary" label="agregar" @click="onReset(), form = true"/>
+    </q-item-label>
     <template v-for="(sortedPizzas, category) in sortedByCategories" :key="category">
       <q-list padding>
         <q-item-label header class="flex justify-between">
           <span @click="xxx">{{ category }}</span>
-          <q-btn color="primary" label="agregar" @click="onReset(), form = true"/>
         </q-item-label>
         <template v-for="pizza in sortedPizzas" :key="pizza.name">
           <q-item>
