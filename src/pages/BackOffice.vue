@@ -1,52 +1,53 @@
 <template>
   <div class="q-pa-md">
-    <q-list padding>
-      <q-item-label header class="flex justify-between">
-        <span>Menu</span>
-        <q-btn color="primary" label="agregar" @click="onReset(), form = true"/>
-      </q-item-label>
-      <template v-for="pizza in pizzas" :key="pizza.name">
-        <q-item>
-          <q-item-section
-            thumbnail
-            class="q-ml-none"
-            @click="edit = true"
-          >
-            <q-avatar rounded @click="detail = true, selectedPizza = pizza">
-              <img :src="pizza.image" />
-            </q-avatar>
-          </q-item-section>
+    <template v-for="(sortedPizzas, category) in sortedByCategories" :key="category">
+      <q-list padding>
+        <q-item-label header class="flex justify-between">
+          <span @click="xxx">{{ category }}</span>
+          <q-btn color="primary" label="agregar" @click="onReset(), form = true"/>
+        </q-item-label>
+        <template v-for="pizza in sortedPizzas" :key="pizza.name">
+          <q-item>
+            <q-item-section
+              thumbnail
+              class="q-ml-none"
+              @click="edit = true"
+            >
+              <q-avatar rounded @click="detail = true, selectedPizza = pizza">
+                <img :src="pizza.image" />
+              </q-avatar>
+            </q-item-section>
 
-          <q-item-section>
-            <q-item-label>{{ pizza.name }}</q-item-label>
-            <q-item-label>${{ pizza.price }}</q-item-label>
-          </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ pizza.name }}</q-item-label>
+              <q-item-label>${{ pizza.price }}</q-item-label>
+            </q-item-section>
 
-          <q-item-section side top>
-            <div class="d-flex jusify-content-between">
-              <q-btn
-                push
-                color="info"
-                round
-                icon="edit"
-                @click="form = true, selectedPizza = pizza, edit = true, selectedPizza.id = pizza.id"
-              />
-              <b class="q-px-sm">{{ pizza.amount }} </b>
-              <q-btn
-                push
-                color="negative"
-                round
-                icon="delete"
-                @click="confirm = true"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
+            <q-item-section side top>
+              <div class="d-flex jusify-content-between">
+                <q-btn
+                  push
+                  color="info"
+                  round
+                  icon="edit"
+                  @click="form = true, selectedPizza = pizza, edit = true, selectedPizza.id = pizza.id"
+                />
+                <b class="q-px-sm">{{ pizza.amount }} </b>
+                <q-btn
+                  push
+                  color="negative"
+                  round
+                  icon="delete"
+                  @click="confirm = true, selectedPizza = pizza"
+                />
+              </div>
+            </q-item-section>
+          </q-item>
 
-        <q-separator spaced />
-      </template>
-    </q-list>
-
+          <q-separator spaced />
+        </template>
+      </q-list>
+    </template>
     <q-dialog v-model="form" @hide="edit = false">
       <q-card class="my-card bg-white">
         <q-form @submit="onSubmit" @reset="onReset">
@@ -56,12 +57,17 @@
 
           <q-card-actions>
             <q-list>
-              <q-item clickable>
+              <q-item>
                 <q-item-section>
                   <q-input filled v-model="selectedPizza.name" label="Nombre" />
                 </q-item-section>
               </q-item>
-              <q-item clickable>
+              <q-item>
+                <q-item-section>
+                  <q-input filled v-model="selectedPizza.category" label="Categoría" />
+                </q-item-section>
+              </q-item>
+              <q-item>
                 <q-item-section>
                   <q-input filled v-model="selectedPizza.price" label="precio" />
                 </q-item-section>
@@ -83,7 +89,7 @@
 
               <q-editor v-model="selectedPizza.detail" min-height="5rem" />
 
-              <q-item clickable>
+              <q-item>
                 <q-btn color="warning" label="editar" v-if="edit" @click="updatePizzas(selectedPizza.id)"/>
                 <q-btn label="Crear" type="submit" color="primary" v-else/>
                 <q-spinner-hourglass color="primary" size="2em" v-if="loading"/>
@@ -103,7 +109,7 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn label="Eliminar" color="negative" v-close-popup />
+          <q-btn label="Eliminar" color="negative" @click="deletePizza" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -151,9 +157,24 @@ export default {
         name: "",
         image: "",
         detail: "",
+        category: "",
         price: 0,
         active: true
       }
+    }
+  },
+  computed: {
+    categories() {
+      const pizzasCategories = this.pizzas.map(pizza => pizza.category)
+      return [...new Set([...pizzasCategories])]
+    },
+    sortedByCategories() {
+      const sortedItems = {}
+      this.categories.forEach(category => {
+        sortedItems[category] = this.pizzas
+          .filter(pizza => category === pizza.category)
+      })
+      return sortedItems
     }
   },
   watch: {
@@ -187,6 +208,7 @@ export default {
       this.selectedPizza.price = 0
       this.selectedPizza.active = true
       this.selectedPizza.image = ''
+      this.selectedPizza.category = ''
     },
     async onSubmit () {
       this.$q.loading.show()
@@ -197,6 +219,7 @@ export default {
       delete this.selectedPizza.image
       await db.collection('pizzas').add({ ...this.selectedPizza, image })
       this.getPizzas()
+      this.form = false
       this.$q.loading.hide()
     },
     async updatePizzas (pizzaId) {
@@ -214,6 +237,15 @@ export default {
       const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
       const image = await snapshot.ref.getDownloadURL()
       return image
+    },
+    async deletePizza() {
+      this.$q.loading.show()
+      await db.collection('pizzas').doc(this.selectedPizza.id).delete()
+      this.confirm = false
+      await this.getPizzas()
+    },
+    xxx() {
+      console.log(this.sortedByCategories);
     }
   },
   mounted() {
