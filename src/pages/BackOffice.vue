@@ -203,6 +203,7 @@ export default {
         const pizza = { id: doc.id, ...doc.data() }
         this.pizzas.push(pizza)
       });
+      console.log(this.pizzas)
       this.$q.loading.hide()
     },
     onReset () {
@@ -220,6 +221,7 @@ export default {
       const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
       const image = await snapshot.ref.getDownloadURL()
       delete this.selectedPizza.image
+      delete this.selectedPizza.id
       await db.collection('pizzas').add({ ...this.selectedPizza, image })
       this.getPizzas()
       this.form = false
@@ -229,10 +231,12 @@ export default {
       this.$q.loading.show()
       const image = this.edit && this.image && await this.storeImage()
       const pizza = image ? { ...this.selectedPizza, image } : this.selectedPizza
+      delete pizza.id
       await db.collection('pizzas')
         .doc(pizzaId).update(pizza, { merge: true })
       await this.getPizzas()
       this.form = false
+      this.image = ''
       this.$q.loading.hide()
     },
     async storeImage() {
