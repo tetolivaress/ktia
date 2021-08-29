@@ -2,21 +2,27 @@
   <div class="q-pa-md">
     <q-item-label header class="flex justify-between">
       <span @click="xxx"></span>
-      <q-btn color="primary" label="agregar" @click="onReset(), form = true"/>
+      <q-btn
+        color="primary"
+        label="agregar"
+        @click="onReset(), (form = true)"
+      />
     </q-item-label>
-    <template v-for="(sortedPizzas, category) in sortedByCategories" :key="category">
+    <template
+      v-for="(sortedPizzas, category) in sortedByCategories"
+      :key="category"
+    >
       <q-list padding>
         <q-item-label header class="flex justify-between">
           <span @click="xxx">{{ category }}</span>
         </q-item-label>
         <template v-for="pizza in sortedPizzas" :key="pizza.name">
           <q-item>
-            <q-item-section
-              thumbnail
-              class="q-ml-none"
-              @click="edit = true"
-            >
-              <q-avatar rounded @click="detail = true, selectedPizza = pizza">
+            <q-item-section thumbnail class="q-ml-none" @click="edit = true">
+              <q-avatar
+                rounded
+                @click=";(detail = true), (selectedPizza = pizza)"
+              >
                 <img :src="pizza.image" />
               </q-avatar>
             </q-item-section>
@@ -33,7 +39,12 @@
                   color="info"
                   round
                   icon="edit"
-                  @click="form = true, selectedPizza = pizza, edit = true, selectedPizza.id = pizza.id"
+                  @click="
+                    ;(form = true),
+                      (selectedPizza = pizza),
+                      (edit = true),
+                      (selectedPizza.id = pizza.id)
+                  "
                 />
                 <b class="q-px-sm">{{ pizza.amount }} </b>
                 <q-btn
@@ -41,7 +52,7 @@
                   color="negative"
                   round
                   icon="delete"
-                  @click="confirm = true, selectedPizza = pizza"
+                  @click=";(confirm = true), (selectedPizza = pizza)"
                 />
               </div>
             </q-item-section>
@@ -67,12 +78,20 @@
               </q-item>
               <q-item>
                 <q-item-section>
-                  <q-input filled v-model="selectedPizza.category" label="Categoría" />
+                  <q-input
+                    filled
+                    v-model="selectedPizza.category"
+                    label="Categoría"
+                  />
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
-                  <q-input filled v-model="selectedPizza.price" label="precio" />
+                  <q-input
+                    filled
+                    v-model="selectedPizza.price"
+                    label="precio"
+                  />
                 </q-item-section>
               </q-item>
               <q-item>
@@ -82,8 +101,8 @@
                   glossy
                   toggle-color="primary"
                   :options="[
-                    {label: 'Desactivado', value: false},
-                    {label: 'Activo', value: true}
+                    { label: 'Desactivado', value: false },
+                    { label: 'Activo', value: true }
                   ]"
                 />
               </q-item>
@@ -93,9 +112,18 @@
               <q-editor v-model="selectedPizza.detail" min-height="5rem" />
 
               <q-item>
-                <q-btn color="warning" label="editar" v-if="edit" @click="updatePizzas(selectedPizza.id)"/>
-                <q-btn label="Crear" type="submit" color="primary" v-else/>
-                <q-spinner-hourglass color="primary" size="2em" v-if="loading"/>
+                <q-btn
+                  color="warning"
+                  label="editar"
+                  v-if="edit"
+                  @click="updatePizzas(selectedPizza.id)"
+                />
+                <q-btn label="Crear" type="submit" color="primary" v-else />
+                <q-spinner-hourglass
+                  color="primary"
+                  size="2em"
+                  v-if="loading"
+                />
               </q-item>
             </q-list>
           </q-card-actions>
@@ -107,7 +135,9 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="signal_wifi_off" color="primary" text-color="white" />
-          <span class="q-ml-sm">You are currently not connected to any network.</span>
+          <span class="q-ml-sm"
+            >You are currently not connected to any network.</span
+          >
         </q-card-section>
 
         <q-card-actions align="right">
@@ -117,13 +147,17 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="detail" transition-show="flip-left" transition-hide="flip-right">
-      <q-card class="my-card" style="width: 720px;">
+    <q-dialog
+      v-model="detail"
+      transition-show="flip-left"
+      transition-hide="flip-right"
+    >
+      <q-card class="my-card" style="width: 720px">
         <q-img :src="selectedPizza.image">
           <div class="absolute-bottom text-h6">{{ selectedPizza.name }}</div>
         </q-img>
         <q-card-section v-html="selectedPizza.detail" />
-          <q-card-actions align="right">
+        <q-card-actions align="right">
           <q-btn
             flat
             round
@@ -134,7 +168,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
   </div>
 </template>
 <script>
@@ -157,10 +190,10 @@ export default {
       loading: false,
       selectedPizza: {
         id: '',
-        name: "",
-        image: "",
-        detail: "",
-        category: "",
+        name: '',
+        image: '',
+        detail: '',
+        category: '',
         price: 0,
         active: true
       }
@@ -168,45 +201,54 @@ export default {
   },
   computed: {
     categories() {
-      const pizzasCategories = this.pizzas.map(pizza => pizza.category)
+      const pizzasCategories = this.pizzas.map((pizza) => pizza.category)
       return [...new Set([...pizzasCategories])]
     },
     sortedByCategories() {
       const sortedItems = {}
-      this.categories.forEach(category => {
-        sortedItems[category] = this.pizzas
-          .filter(pizza => category === pizza.category)
+      this.categories.forEach((category) => {
+        sortedItems[category] = this.pizzas.filter(
+          (pizza) => category === pizza.category
+        )
       })
       return sortedItems
     }
   },
   watch: {
     async image(file) {
-      try{
+      try {
         const fileB64 = await readFileAsync(file)
         const image = await resizeImage(fileB64)
         this.selectedPizza.image = image
-      }catch (error) {
-        alert('Los archivos solo pueden ser tipo JPEG, JPG ó PNG')
+      } catch (error) {
+        this.$q.notify({
+          message: 'Los archivos solo pueden ser tipo JPEG, JPG ó PNG',
+          type: 'negative'
+        })
       }
     },
-    selectedPizza (pizza) {
+    selectedPizza(pizza) {
       console.log(pizza)
     }
   },
   methods: {
     async getPizzas() {
-      this.$q.loading.show()
-      const pizzas = await db.collection("pizzas").get()
-      this.pizzas = []
-      pizzas.forEach((doc) => {
-        const pizza = { id: doc.id, ...doc.data() }
-        this.pizzas.push(pizza)
-      });
-      console.log(this.pizzas)
-      this.$q.loading.hide()
+      try {
+        this.$q.loading.show()
+        const pizzas = await db.collection('pizzas').get()
+        this.pizzas = []
+        pizzas.forEach((doc) => {
+          const pizza = { id: doc.id, ...doc.data() }
+          this.pizzas.push(pizza)
+        })
+        console.log(this.pizzas)
+      } catch (error) {
+        this.$q.notify({ message: error.message, type: 'negative' })
+      } finally {
+        this.$q.loading.hide()
+      }
     },
-    onReset () {
+    onReset() {
       this.selectedPizza.name = ''
       this.selectedPizza.detail = ''
       this.selectedPizza.price = 0
@@ -214,45 +256,73 @@ export default {
       this.selectedPizza.image = ''
       this.selectedPizza.category = ''
     },
-    async onSubmit () {
-      this.$q.loading.show()
-      //db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
-      const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
-      const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
-      const image = await snapshot.ref.getDownloadURL()
-      delete this.selectedPizza.image
-      delete this.selectedPizza.id
-      await db.collection('pizzas').add({ ...this.selectedPizza, image })
-      this.getPizzas()
-      this.form = false
-      this.$q.loading.hide()
+    async onSubmit() {
+      try {
+        this.$q.loading.show()
+        //db.collection('pizzas').add(this.selectedPizza).then(()=>this.getPizzas())
+        const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
+        const snapshot = await refStorage.putString(
+          this.selectedPizza.image,
+          'data_url'
+        )
+        const image = await snapshot.ref.getDownloadURL()
+        delete this.selectedPizza.image
+        delete this.selectedPizza.id
+        await db.collection('pizzas').add({ ...this.selectedPizza, image })
+        this.getPizzas()
+        this.form = false
+      } catch (error) {
+        this.$q.notify({ message: error.message, type: 'negative' })
+      } finally {
+        this.$q.loading.hide()
+      }
     },
-    async updatePizzas (pizzaId) {
-      this.$q.loading.show()
-      const image = this.edit && this.image && await this.storeImage()
-      const pizza = image ? { ...this.selectedPizza, image } : this.selectedPizza
-      delete pizza.id
-      await db.collection('pizzas')
-        .doc(pizzaId).update(pizza, { merge: true })
-      await this.getPizzas()
-      this.form = false
-      this.image = ''
-      this.$q.loading.hide()
+    async updatePizzas(pizzaId) {
+      try {
+        this.$q.loading.show()
+        const image = this.edit && this.image && (await this.storeImage())
+        const pizza = image
+          ? { ...this.selectedPizza, image }
+          : this.selectedPizza
+        delete pizza.id
+        await db
+          .collection('pizzas')
+          .doc(pizzaId)
+          .update(pizza, { merge: true })
+        await this.getPizzas()
+        this.form = false
+        this.image = ''
+      } catch (error) {
+        this.$q.notify({ message: error.message, type: 'negative' })
+      } finally {
+        this.$q.loading.hide()
+      }
     },
     async storeImage() {
-      const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
-      const snapshot = await refStorage.putString(this.selectedPizza.image, 'data_url')
-      const image = await snapshot.ref.getDownloadURL()
-      return image
+      try {
+        const refStorage = firebase.storage().ref(`pizzas/${this.image.name}`)
+        const snapshot = await refStorage.putString(
+          this.selectedPizza.image,
+          'data_url'
+        )
+        const image = await snapshot.ref.getDownloadURL()
+        return image
+      } catch (error) {
+        this.$q.notify({ message: error.message, type: 'negative' })
+      }
     },
     async deletePizza() {
-      this.$q.loading.show()
-      await db.collection('pizzas').doc(this.selectedPizza.id).delete()
-      this.confirm = false
-      await this.getPizzas()
+      try {
+        this.$q.loading.show()
+        await db.collection('pizzas').doc(this.selectedPizza.id).delete()
+        this.confirm = false
+        await this.getPizzas()
+      } catch (error) {
+        this.$q.notify({ message: error.message, type: 'negative' })
+      }
     },
     xxx() {
-      console.log(this.sortedByCategories);
+      console.log(this.sortedByCategories)
     }
   },
   mounted() {
