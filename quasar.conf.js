@@ -138,36 +138,36 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `Katia`,
-        short_name: `Katia`,
-        description: `Katia pizza`,
+        name: process.env.VUE_APP_BUSINESS_NAME,
+        short_name: process.env.VUE_APP_BUSINESS_NAME,
+        description: process.env.VUE_APP_BUSINESS_NAME,
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
         theme_color: "#027be3",
         icons: [
           {
-            src: "icons/icon-128x128.png",
+            src: "assets/tiendii.png",
             sizes: "128x128",
             type: "image/png",
           },
           {
-            src: "icons/icon-192x192.png",
+            src: "assets/tiendii.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "icons/icon-256x256.png",
+            src: "assets/tiendii.png",
             sizes: "256x256",
             type: "image/png",
           },
           {
-            src: "icons/icon-384x384.png",
+            src: "assets/tiendii.png",
             sizes: "384x384",
             type: "image/png",
           },
           {
-            src: "icons/icon-512x512.png",
+            src: "assets/tiendii.png",
             sizes: "512x512",
             type: "image/png",
           },

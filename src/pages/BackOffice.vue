@@ -33,7 +33,7 @@
                   color="info"
                   round
                   icon="edit"
-                  @click="form = true, selectedPizza = pizza, edit = true, selectedPizza.id = pizza.id"
+                  @click="openEdit(pizza)"
                 />
                 <b class="q-px-sm">{{ pizza.amount }} </b>
                 <q-btn
@@ -187,7 +187,7 @@ export default {
         const image = await resizeImage(fileB64)
         this.selectedPizza.image = image
       }catch (error) {
-        alert('Los archivos solo pueden ser tipo JPEG, JPG ó PNG')
+        console.log('Los archivos solo pueden ser tipo JPEG, JPG ó PNG')
       }
     },
     selectedPizza (pizza) {
@@ -197,7 +197,7 @@ export default {
   methods: {
     async getPizzas() {
       this.$q.loading.show()
-      const pizzas = await db.collection("pizzas").get()
+      const pizzas = await db.collection(process.env.VUE_APP_FIRESTORE_COLLECTION).get()
       this.pizzas = []
       pizzas.forEach((doc) => {
         const pizza = { id: doc.id, ...doc.data() }
@@ -222,17 +222,19 @@ export default {
       const image = await snapshot.ref.getDownloadURL()
       delete this.selectedPizza.image
       delete this.selectedPizza.id
-      await db.collection('pizzas').add({ ...this.selectedPizza, image })
+      await db.collection(process.env.VUE_APP_FIRESTORE_COLLECTION).add({ ...this.selectedPizza, image })
       this.getPizzas()
       this.form = false
       this.$q.loading.hide()
     },
     async updatePizzas (pizzaId) {
       this.$q.loading.show()
+
       const image = this.edit && this.image && await this.storeImage()
+
       const pizza = image ? { ...this.selectedPizza, image } : this.selectedPizza
       delete pizza.id
-      await db.collection('pizzas')
+      await db.collection(process.env.VUE_APP_FIRESTORE_COLLECTION)
         .doc(pizzaId).update(pizza, { merge: true })
       await this.getPizzas()
       this.form = false
@@ -247,12 +249,19 @@ export default {
     },
     async deletePizza() {
       this.$q.loading.show()
-      await db.collection('pizzas').doc(this.selectedPizza.id).delete()
+      await db.collection(process.env.VUE_APP_FIRESTORE_COLLECTION).doc(this.selectedPizza.id).delete()
       this.confirm = false
       await this.getPizzas()
     },
     xxx() {
       console.log(this.sortedByCategories);
+    },
+    openEdit(pizza) {
+      this.form = true
+      this.selectedPizza = pizza
+      this.edit = true
+      this.selectedPizza.id = pizza.id
+      delete this.selectedPizza.image
     }
   },
   mounted() {

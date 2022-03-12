@@ -8,3 +8,7 @@ export default {
   appId: process.env.VUE_APP_APPID,
   measurementId: process.env.VUE_APP_MEASUREMENTID
 }
+
+export const phone = {
+  number: process.env.VUE_APP_PHONE_NUMBER
+}
